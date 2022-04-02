@@ -6,7 +6,6 @@ import LctLayer from "./components/Lct/LctLayer";
 
 function App(props) {
   let [data, setData] = React.useState(null);
-  //ловим промес
   React.useEffect(() => {
     if (props.state !== undefined) props.state.then((data) => setData(data));
   }, [data, props.state]);

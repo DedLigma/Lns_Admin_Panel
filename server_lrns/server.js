@@ -15,7 +15,7 @@ let Lct_Data = []; //набор строчек Lct
 let Last_Solv_String = []; //последняя строчка с Solv
 let Lct_Data_Split = []; //массив lct с разбивкой строчек
 let resids_arr = []; //массив для перегонки невязок в state
-let is_it_change = 1;
+let is_it_change = 1; //переменая для проверки изменений данных
 let number_of_element;
 
 //первичный запуск
@@ -23,9 +23,10 @@ Main_Data = File_Reader_Function(); //читаем файл
 Main_Function(Main_Data);
 
 //метод, следящий за изменением файла
-//в случае если fs.watch не работает, использовать fs.watchFile
+//для более стабильной работы использовать fs.watchFile
+//В ином случае можно использовать fs.watch БЕЗ УКАЗАНИЯ ИНТЕРВАЛА
+// fs.watch(srnsPath, () => {
 fs.watchFile(srnsPath, { interval: 100 }, () => {
-  // fs.watch(srnsPath, () => {
   Main_Data = File_Reader_Function(); //читаем файл
   Main_Function(Main_Data);
 });
@@ -65,9 +66,10 @@ function Main_Function(Main_Data) {
   });
 
   Making_Lct_State(Lct_Data_Split);
-
+  //отправляем данные по адресу /state
   The_Send(state, "/state");
 
+  //меняем значение переменной для считывания новых данных
   is_it_change = -is_it_change;
   app.get("/change", (req, res) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -94,7 +96,7 @@ function Making_Solv_State(Last_Solv_String) {
   state.Solv.timer = String(Last_Solv_String[6]);
   state.Solv.coordinates.latitude = parseFloat(Last_Solv_String[7]);
   state.Solv.coordinates.longtude = Number(Last_Solv_String[8]);
-  state.Solv.height = +/\d+.\d+/.exec(Last_Solv_String[10]); //тут в общем регулярное выражение чтоб достать число с плавающей точкой. капец круто написано да?
+  state.Solv.height = +/\d+.\d+/.exec(Last_Solv_String[10]);
   state.Solv.svs = String(Last_Solv_String[12]);
   state.Solv.res = +/\d+.\d+/.exec(Last_Solv_String[14]);
   state.Solv.modi_ms = String(Last_Solv_String[16]);
@@ -105,7 +107,7 @@ function Making_Solv_State(Last_Solv_String) {
 }
 
 function Making_Lct_State(Lct_Data_Split) {
-  //очищаем state.Lct, чтобы не остались старые маяки
+  //очищаем state.Lct
   state.Lct.number = [];
   state.Lct.time_data = [];
   state.Lct.timer = [];
@@ -114,7 +116,7 @@ function Making_Lct_State(Lct_Data_Split) {
   state.Lct.height = [];
   state.Lct.resids = [];
 
-  //вносим уникальные номера в state
+  //вносим уникальные номера работающих маяков
   Lct_Data_Split.forEach((el) => {
     el[2] = +el[2];
     el[11] = +el[11];
@@ -122,11 +124,10 @@ function Making_Lct_State(Lct_Data_Split) {
       state.Lct.number.push(el[11]);
     }
   });
-  state.Lct.number.sort((a, b) => a - b);
+  state.Lct.number.sort((a, b) => a - b); //сортируем номера по возрастанию
 
   Lct_Data_Split.forEach((split_el) => {
     //занесение координат
-
     if (split_el.includes("NavMsgLctLxOCoord")) {
       state.Lct.coordinates.latitude[split_el[11]] = +/\d+.\d+/.exec(
         split_el[14]
@@ -143,16 +144,16 @@ function Making_Lct_State(Lct_Data_Split) {
     }
     //занесение невязок
     else if (split_el.includes("NavMsgLctLxOResids")) {
-      //первая невязка [14]
+      //первая невязка начинается с [14]
       state.Lct.resids[split_el[11]] = split_el[11];
-      
+
       +split_el.splice(19, 1); //удаляем 19 элемент, тк он пустой
       for (number_of_element in split_el.slice(14)) {
         resids_arr[+number_of_element + 1] =
           +split_el.slice(14)[+number_of_element];
         state.Lct.resids[split_el[11]] = resids_arr;
       }
-      resids_arr = []; //сбрасываем массив
+      resids_arr = []; //сбрасываем массив невязок
     }
   });
 }

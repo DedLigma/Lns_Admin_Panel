@@ -22,12 +22,7 @@ function LctBlock(props) {
 
   return (
     <div className={cssstyle.LctBlock}>
-      <b>LctL2O # {props.num}</b>
-      {"\u00A0"}
-      {"\u00A0"}
-      {"\u00A0"}
-      {"\u00A0"}
-      {"\u00A0"}
+      <b>LctL2O # {props.num}</b>{"\u00A0"}{"\u00A0"}{"\u00A0"}{"\u00A0"}{"\u00A0"}
       <a className={cssstyle.data}>
         {props.Lct.time_data[props.num]} {props.Lct.timer[props.num]}
       </a>

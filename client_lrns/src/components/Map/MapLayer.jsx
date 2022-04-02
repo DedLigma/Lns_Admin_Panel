@@ -1,6 +1,8 @@
 import { YMaps, Map, Placemark } from "react-yandex-maps";
 import cssFile from "./MapLayer.module.css";
-import Markers from "./Markers/Markers";
+import LctMarkers from "./Markers/LctMarker";
+import SolvMarker from "./Markers/SolvMarker";
+import ResidsPolyline from "./Resids/ResidsPolyline";
 
 function MapLayer(props) {
   return (
@@ -8,15 +10,19 @@ function MapLayer(props) {
       <YMaps>
         <Map
           defaultState={{
-            center: [props.state.Solv.coordinates.latitude, props.state.Solv.coordinates.longtude],
+            center: [
+              props.state.Solv.coordinates.latitude,
+              props.state.Solv.coordinates.longtude,
+            ],
             zoom: 18,
           }}
           width={"auto"}
           minheight={"10px"}
           height={"98vh"}
-         
         >
-          <Markers state={props.state} />
+          <SolvMarker state={props.state} />
+          <LctMarkers state={props.state} />
+          <ResidsPolyline Lct={props.state.Lct} />
         </Map>
       </YMaps>
     </div>
