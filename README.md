@@ -9,6 +9,9 @@
 
 Количество маяков в ЛНС не имеет значения. Программа отобразит данные всех имеющихся маяков.
 
+![image](https://user-images.githubusercontent.com/71031830/161391785-06011c13-1a36-4c9b-9d6b-f149c42dbd8d.png)
+
 Backend: Node JS, Cors
+
 Frontend: React JS, React Yandex Map
 
